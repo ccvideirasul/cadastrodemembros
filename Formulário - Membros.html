@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro de Membro — CCVideira Sul</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black: #0d0d0d;
+    --gray-900: #1a1a1a;
+    --gray-800: #2c2c2c;
+    --gray-700: #444444;
+    --gray-600: #5f5f5f;
+    --gray-500: #7a7a7a;
+    --gray-400: #9e9e9e;
+    --gray-300: #c4c4c4;
+    --gray-200: #e2e2e2;
+    --gray-100: #f2f2f2;
+    --gray-50: #f8f8f8;
+    --white: #ffffff;
+    --danger: #c0392b;
+    --danger-light: #fdf0ee;
+    --accent: #1a1a1a;
+    --border: #d4d4d4;
+    --border-focus: #0d0d0d;
+    --radius: 8px;
+    --shadow: 0 2px 12px rgba(0,0,0,0.09);
+  }
+
+  body {
+    font-family: 'Sora', sans-serif;
+    background: #ebebeb;
+    color: var(--gray-900);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  header {
+    background: var(--black);
+    padding: 28px 0 28px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: none;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -1px; left: 0; right: 0;
+    height: 20px;
+    background: #ebebeb;
+    clip-path: ellipse(52% 100% at 50% 100%);
+  }
+  .header-inner { max-width: 660px; margin: 0 auto; padding: 0 24px; position: relative; }
+  .logo-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 100px;
+    padding: 5px 16px;
+    margin-bottom: 14px;
+  }
+  .logo-badge span { color: rgba(255,255,255,0.75); font-size: 11px; letter-spacing: 0.10em; font-weight: 500; text-transform: uppercase; }
+  header h1 { color: #fff; font-size: 24px; font-weight: 600; letter-spacing: -0.4px; line-height: 1.2; }
+  header p { color: rgba(255,255,255,0.55); font-size: 13px; margin-top: 7px; font-weight: 300; }
+
+  .container { max-width: 660px; margin: 0 auto; padding: 28px 16px 0; }
+
+  .progress-bar { background: #d8d8d8; border-radius: 100px; height: 4px; margin-bottom: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; background: var(--black); border-radius: 100px; transition: width 0.4s ease; }
+  .progress-label { font-size: 11px; color: var(--gray-500); text-align: right; margin-bottom: 22px; font-family: 'DM Mono', monospace; }
+
+  .card {
+    background: var(--white);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 26px 26px 22px;
+    margin-bottom: 14px;
+    border: 1px solid var(--gray-200);
+  }
+  .card-title {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; font-weight: 600; color: var(--black);
+    margin-bottom: 20px; padding-bottom: 14px;
+    border-bottom: 1.5px solid var(--gray-200);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .card-title .icon {
+    width: 28px; height: 28px;
+    background: var(--gray-100);
+    border: 1px solid var(--gray-200);
+    border-radius: 7px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+  }
+
+  .field { margin-bottom: 16px; }
+  .field:last-child { margin-bottom: 0; }
+  label {
+    display: block;
+    font-size: 12px; font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  label .req { color: var(--danger); margin-left: 2px; }
+  label .hint { color: var(--gray-400); font-weight: 400; text-transform: none; letter-spacing: 0; font-size: 12px; margin-left: 4px; }
+
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  select,
+  textarea {
+    width: 100%;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 10px 13px;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px;
+    color: var(--gray-900);
+    background: var(--white);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    appearance: none;
+    outline: none;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--black);
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.07);
+  }
+  input.error, select.error, textarea.error {
+    border-color: var(--danger);
+    box-shadow: 0 0 0 3px rgba(192,57,43,0.10);
+  }
+  select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a7a' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 13px center; padding-right: 36px;
+  }
+  textarea { resize: vertical; min-height: 76px; }
+
+  .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  .error-msg {
+    display: none; color: var(--danger);
+    font-size: 11px; margin-top: 5px;
+    font-weight: 500;
+  }
+
+  /* Info box */
+  .info-box {
+    background: var(--gray-50);
+    border-left: 3px solid var(--gray-800);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 11px 14px;
+    font-size: 12.5px;
+    color: var(--gray-600);
+    margin-bottom: 18px;
+    line-height: 1.55;
+  }
+
+  /* Membros */
+  .member-list { display: flex; flex-direction: column; gap: 10px; }
+  .member-item {
+    background: var(--gray-50);
+    border: 1.5px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+  }
+  .member-item-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .member-number {
+    font-size: 11px; font-weight: 600;
+    color: var(--gray-700);
+    background: var(--gray-200);
+    border-radius: 5px;
+    padding: 3px 10px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.04em;
+  }
+  .btn-remove {
+    background: none; border: none; cursor: pointer;
+    color: var(--gray-400); font-size: 18px; line-height: 1;
+    padding: 2px 6px; border-radius: 6px;
+    transition: color 0.15s, background 0.15s;
+  }
+  .btn-remove:hover { color: var(--danger); background: var(--danger-light); }
+
+  /* Legenda dos próximos passos */
+  .passos-legend {
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .passo-leg {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--gray-600);
+    line-height: 1.45;
+  }
+  .passo-num {
+    flex-shrink: 0;
+    width: 18px; height: 18px;
+    background: var(--gray-800);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Mono', monospace;
+    position: relative;
+    top: 1px;
+  }
+
+  /* Tooltip do próximo passo */
+  .passo-tooltip {
+    font-size: 11px;
+    color: var(--gray-500);
+    margin-top: 5px;
+    line-height: 1.5;
+    min-height: 16px;
+    font-style: italic;
+    display: none;
+  }
+  .passo-tooltip.visible { display: block; }
+
+  .btn-add-member {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%;
+    background: var(--gray-50);
+    border: 2px dashed var(--gray-300);
+    border-radius: var(--radius);
+    padding: 11px 16px;
+    color: var(--gray-700);
+    font-family: 'Sora', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    margin-top: 4px;
+  }
+  .btn-add-member:hover { background: var(--gray-100); border-color: var(--gray-500); }
+  .btn-add-member .plus { font-size: 18px; line-height: 1; color: var(--gray-700); font-weight: 300; }
+
+  .member-count-badge {
+    display: inline-flex; align-items: center;
+    background: var(--gray-200);
+    color: var(--gray-700);
+    border-radius: 100px;
+    font-size: 11px; font-weight: 600;
+    padding: 2px 10px;
+    font-family: 'DM Mono', monospace;
+    margin-left: 8px;
+  }
+
+  /* Líderes dinâmicos */
+  #liderFields { transition: all 0.2s; }
+
+  /* Aviso de duplicata de contato */
+  .warn-box {
+    display: none;
+    background: #fff8e1;
+    border: 1.5px solid #f0c030;
+    border-radius: var(--radius);
+    padding: 9px 13px;
+    font-size: 12px;
+    color: #7a5c00;
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .warn-box.visible { display: block; }
+
+  /* Footer buttons */
+  .footer-actions { display: flex; gap: 12px; margin-top: 8px; }
+  .btn-primary {
+    flex: 1;
+    background: var(--black);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 13px 24px;
+    font-family: 'Sora', sans-serif;
+    font-size: 14px; font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: -0.1px;
+  }
+  .btn-primary:hover { background: var(--gray-800); }
+  .btn-primary:active { transform: scale(0.98); }
+  .btn-secondary {
+    background: var(--white);
+    color: var(--gray-600);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 13px 20px;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--gray-700); color: var(--gray-900); }
+
+  /* Sucesso */
+  .success-screen { display: none; text-align: center; padding: 48px 24px; }
+  .success-icon {
+    width: 68px; height: 68px;
+    background: var(--gray-100);
+    border: 2px solid var(--gray-300);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; margin: 0 auto 20px;
+  }
+  .success-screen h2 { font-size: 20px; font-weight: 600; color: var(--black); margin-bottom: 8px; }
+  .success-screen p { color: var(--gray-500); font-size: 13px; line-height: 1.6; }
+  .download-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-top: 22px;
+    background: var(--black);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius);
+    padding: 12px 26px;
+    font-family: 'Sora', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .download-btn:hover { background: var(--gray-800); }
+
+  /* Divider label */
+  .section-divider {
+    font-size: 11px; font-weight: 600; color: var(--gray-400);
+    text-transform: uppercase; letter-spacing: 0.08em;
+    margin: 16px 0 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-divider::after { content: ''; flex: 1; height: 1px; background: var(--gray-200); }
+
+  @media (max-width: 520px) {
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+    .card { padding: 18px 16px; }
+    header h1 { font-size: 19px; }
+  }
+  /* Radio group para sexo/estado civil */
+  .radio-group { display: flex; gap: 10px; flex-wrap: wrap; }
+  .radio-opt {
+    display: flex; align-items: center; gap: 7px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 9px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--gray-700);
+    transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .radio-opt input[type=radio] { accent-color: var(--black); width: 14px; height: 14px; }
+  .radio-opt:has(input:checked) { border-color: var(--black); background: var(--gray-100); color: var(--black); font-weight: 500; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-badge"><span>CCVideira Sul — Migração para InPeace</span></div>
+    <h1>Cadastro de Membro</h1>
+    <p>Preencha seus dados para concluir o recadastramento</p>
+  </div>
+</header>
+
+<div class="container">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">0 de 3 seções preenchidas</div>
+
+  <form id="membroForm" novalidate>
+
+    <!-- DADOS PESSOAIS -->
+    <div class="card">
+      <div class="card-title"><div class="icon">👤</div> Dados Pessoais</div>
+
+      <div class="field">
+        <label>Nome completo <span class="req">*</span></label>
+        <input type="text" id="nomeCompleto" placeholder="Seu nome completo">
+        <div class="error-msg" id="err-nomeCompleto">Informe seu nome completo.</div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>WhatsApp <span class="req">*</span></label>
+          <input type="tel" id="whatsapp" placeholder="(85) 99999-9999">
+          <div class="error-msg" id="err-whatsapp">Informe seu WhatsApp.</div>
+        </div>
+        <div class="field">
+          <label>E-mail <span class="hint">(opcional)</span></label>
+          <input type="email" id="email" placeholder="email@exemplo.com">
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Data de nascimento <span class="req">*</span></label>
+          <input type="text" id="dataNascimento" placeholder="DD/MM/AAAA">
+          <div class="error-msg" id="err-dataNascimento">Informe sua data de nascimento.</div>
+        </div>
+        <div class="field">
+          <label>Sexo <span class="req">*</span></label>
+          <select id="sexo">
+            <option value="">Selecione...</option>
+            <option>Masculino</option>
+            <option>Feminino</option>
+          </select>
+          <div class="error-msg" id="err-sexo">Selecione uma opção.</div>
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Bairro <span class="req">*</span></label>
+          <input type="text" id="bairro" placeholder="Seu bairro">
+          <div class="error-msg" id="err-bairro">Informe seu bairro.</div>
+        </div>
+        <div class="field">
+          <label>Cidade <span class="req">*</span></label>
+          <input type="text" id="cidade" placeholder="Sua cidade">
+          <div class="error-msg" id="err-cidade">Informe sua cidade.</div>
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Estado civil <span class="req">*</span></label>
+          <select id="estadoCivil">
+            <option value="">Selecione...</option>
+            <option>Solteiro(a)</option>
+            <option>Casado(a)</option>
+            <option>Divorciado(a)</option>
+            <option>Viúvo(a)</option>
+          </select>
+          <div class="error-msg" id="err-estadoCivil">Selecione seu estado civil.</div>
+        </div>
+        <div class="field">
+          <label>Observações <span class="hint">(opcional)</span></label>
+          <textarea id="obs" placeholder="Algo que queira informar à liderança..." style="min-height:42px"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRÓXIMOS PASSOS -->
+    <div class="card">
+      <div class="card-title"><div class="icon">🧭</div> Próximos Passos</div>
+      <p style="font-size:13px;color:var(--gray-600);line-height:1.6;margin-bottom:18px">Queremos acompanhar a sua jornada como membro em nossa igreja. Considerando as opções abaixo, qual delas é a que melhor descreve o seu próximo passo?</p>
+      <div class="passos-legend">
+        <div class="passo-leg"><span class="passo-num">1</span><span><strong>DECIDIR</strong> — Tomar a decisão de caminhar com Cristo.</span></div>
+        <div class="passo-leg"><span class="passo-num">2</span><span><strong>CONECTAR</strong> — Conhecer/ser membro oficial de um GC.</span></div>
+        <div class="passo-leg"><span class="passo-num">3</span><span><strong>CONHECER</strong> — Aprofundar-se no conhecimento da Palavra de Deus.</span></div>
+        <div class="passo-leg"><span class="passo-num">4</span><span><strong>SERVIR</strong> — Servir como voluntário na nossa igreja.</span></div>
+        <div class="passo-leg"><span class="passo-num">5</span><span><strong>LIDERAR</strong> — Participar do Programa de Formação de Líderes.</span></div>
+      </div>
+      <div class="field">
+        <label>Qual é o seu próximo passo? <span class="req">*</span></label>
+        <select id="proximoPasso" required>
+          <option value="">Selecione...</option>
+          <option>1 — DECIDIR</option>
+          <option>2 — CONECTAR</option>
+          <option>3 — CONHECER</option>
+          <option>4 — SERVIR</option>
+          <option>5 — LIDERAR</option>
+          <option value="nao">Prefiro não indicar um próximo passo agora</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- DADOS DO GC -->
+    <div class="card">
+      <div class="card-title"><div class="icon">👥</div> Seu Grupo de Crescimento</div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Ministério <span class="req">*</span></label>
+          <select id="ministerio">
+            <option value="">Selecione...</option>
+            <option>A13 Jr — 12 a 14 anos</option>
+            <option>A13 School — 15 a 17 anos</option>
+            <option>A13 Uni — 18 a 24 anos</option>
+            <option>Vert — 25 a 34 anos</option>
+            <option>Inspire — 35+</option>
+            <option value="Somos Um (Casais)">Somos Um (Casais)</option>
+            <option>Somos Um (Rede MC)</option>
+            <option>Somos Um (Rede HC)</option>
+            <option>Videira Kids — 8 a 11 anos</option>
+          </select>
+          <div class="error-msg" id="err-ministerio">Selecione um ministério.</div>
+        </div>
+        <div class="field">
+          <label>Nome do GC <span class="req">*</span></label>
+          <input type="text" id="nomeGC" placeholder="Ex: Somos Um — Aldeota Quinta">
+          <div class="error-msg" id="err-nomeGC">Informe o nome do seu GC.</div>
+        </div>
+      </div>
+
+      <!-- Líder único (padrão) -->
+      <div id="sec-lider-unico">
+        <div class="row-2">
+          <div class="field">
+            <label>Nome do líder <span class="req">*</span></label>
+            <input type="text" id="nomeLider" placeholder="Nome do líder do seu GC">
+            <div class="error-msg" id="err-nomeLider">Informe o nome do líder.</div>
+          </div>
+          <div class="field">
+            <label>WhatsApp do líder</label>
+            <input type="tel" id="whatsLider" class="tel-lider" placeholder="(85) 99999-9999" maxlength="15">
+          </div>
+        </div>
+      </div>
+
+      <!-- Dois líderes — Somos Um Casais -->
+      <div id="sec-lideres-duplo" style="display:none">
+        <div class="row-2">
+          <div class="field">
+            <label>Nome do Líder 1 <span class="req">*</span></label>
+            <input type="text" id="nomeLider1" placeholder="Nome do líder 1">
+            <div class="error-msg" id="err-nomeLider1">Informe o nome do líder 1.</div>
+          </div>
+          <div class="field">
+            <label>WhatsApp do Líder 1</label>
+            <input type="tel" id="whatsLider1" class="tel-lider" placeholder="(85) 99999-9999" maxlength="15">
+          </div>
+        </div>
+        <div class="row-2">
+          <div class="field">
+            <label>Nome do Líder 2 <span class="req">*</span></label>
+            <input type="text" id="nomeLider2" placeholder="Nome do líder 2">
+            <div class="error-msg" id="err-nomeLider2">Informe o nome do líder 2.</div>
+          </div>
+          <div class="field">
+            <label>WhatsApp do Líder 2</label>
+            <input type="tel" id="whatsLider2" class="tel-lider" placeholder="(85) 99999-9999" maxlength="15">
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+
+    <div class="footer-actions">
+      <button type="button" class="btn-secondary" id="btnClear">Limpar</button>
+      <button type="submit" class="btn-primary" id="submitBtn">✓ Enviar cadastro</button>
+    </div>
+  </form>
+
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">✓</div>
+    <h2>Cadastro enviado com sucesso!</h2>
+    <p>Obrigado! Seus dados foram recebidos pela equipe da CCVideira Sul.</p>
+    <br>
+    <button class="btn-secondary" id="btnNovoMembro" style="margin-top:8px">+ Cadastrar outra pessoa</button>
+  </div>
+</div>
+
+<script>
+
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzkPSaz_WYl-w4PuXFQTtmQwA5D_OgQ_hkvW7kQblU359FvmOK01qFSkft7-DL6_EqVbA/exec';
+
+var PASSOS = {
+  '1 — DECIDIR':  'Conhecendo a igreja, mas ainda não aceitou a Jesus como Senhor e Salvador.',
+  '2 — CONECTAR': 'Novo decidido, mas ainda não é membro de um GC.',
+  '3 — CONHECER': 'Membro do GC, mas ainda não iniciou a trilha Fundamentos.',
+  '4 — SERVIR':   'Faz parte da igreja, mas ainda não é voluntário.',
+  '5 — LIDERAR':  'Fez Fundamentos, é voluntário e está em GC, mas ainda não fez o PFL.'
+};
+
+// ── Helpers ────────────────────────────────────────────────────
+function val(id) {
+  var el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+function radioVal(name) {
+  var el = document.querySelector('input[name="'+name+'"]:checked');
+  return el ? el.value : '';
+}
+function showErr(id, show, msg) {
+  var el = document.getElementById(id);
+  if (el) { el.style.display = show ? 'block' : 'none'; if (msg) el.textContent = msg; }
+  var input = document.getElementById(id.replace('err-',''));
+  if (input) input.classList.toggle('error', show);
+}
+
+// ── Formatação telefone ────────────────────────────────────────
+function formatarTel(input) {
+  var d = input.value.replace(/\D/g,'').slice(0,11);
+  var f = d;
+  if (d.length > 2)  f = '('+d.slice(0,2)+') '+d.slice(2);
+  if (d.length > 7)  f = '('+d.slice(0,2)+') '+d.slice(2,7)+'-'+d.slice(7);
+  input.value = f;
+}
+function telValido(input) { return input.value.replace(/\D/g,'').length === 11; }
+
+// ── Data de nascimento ─────────────────────────────────────────
+function formatarData(input) {
+  var d = input.value.replace(/\D/g,'').slice(0,8);
+  if (d.length > 2)  d = d.slice(0,2)+'/'+d.slice(2);
+  if (d.length > 5)  d = d.slice(0,5)+'/'+d.slice(5);
+  input.value = d;
+}
+function dataValida(str) {
+  var parts = str.split('/');
+  if (parts.length !== 3 || parts[2].length !== 4) return false;
+  var d = parseInt(parts[0],10), m = parseInt(parts[1],10), y = parseInt(parts[2],10);
+  if (m < 1 || m > 12 || d < 1 || d > 31 || y < 1900 || y > new Date().getFullYear()) return false;
+  return true;
+}
+
+// ── Ministério → campo líder(es) ──────────────────────────────
+function onMinisterioChange() {
+  var v = document.getElementById('ministerio').value;
+  var isCasais = (v === 'Somos Um (Casais)');
+  document.getElementById('sec-lider-unico').style.display = isCasais ? 'none' : 'block';
+  document.getElementById('sec-lideres-duplo').style.display = isCasais ? 'block' : 'none';
+  updateProgress();
+}
+
+// ── Progresso ──────────────────────────────────────────────────
+function updateProgress() {
+  var s1 = val('nomeCompleto') && val('whatsapp');
+  var s2 = val('ministerio') && val('nomeGC');
+  var s3 = val('bairro') && val('cidade') && radioVal('estadoCivil');
+  var done = (s1?1:0)+(s2?1:0)+(s3?1:0);
+  document.getElementById('progressFill').style.width = (done/3*100)+'%';
+  document.getElementById('progressLabel').textContent = done+' de 3 seções preenchidas';
+}
+
+// ── Validação ──────────────────────────────────────────────────
+function validate() {
+  var ok = true;
+
+  // Dados pessoais
+  ['nomeCompleto','whatsapp','dataNascimento'].forEach(function(id){
+    var empty = !val(id);
+    showErr('err-'+id, empty);
+    if (empty) ok = false;
+  });
+  var wEl = document.getElementById('whatsapp');
+  if (wEl && val('whatsapp') && !telValido(wEl)) {
+    showErr('err-whatsapp', true, 'Número inválido — informe DDD + 9 dígitos.');
+    ok = false;
+  }
+  var dn = val('dataNascimento');
+  if (dn && !dataValida(dn)) {
+    showErr('err-dataNascimento', true, 'Data inválida. Use o formato DD/MM/AAAA.');
+    ok = false;
+  }
+  if (!val('sexo')) {
+    showErr('err-sexo', true); ok = false;
+  } else {
+    showErr('err-sexo', false);
+  }
+
+  // Dados pastorais
+  ['ministerio','nomeGC'].forEach(function(id){
+    var empty = !val(id);
+    showErr('err-'+id, empty);
+    if (empty) ok = false;
+  });
+  var isCasais = (val('ministerio') === 'Somos Um (Casais)');
+  if (isCasais) {
+    var empty1 = !val('nomeLider1'), empty2 = !val('nomeLider2');
+    showErr('err-nomeLider1', empty1); if (empty1) ok = false;
+    showErr('err-nomeLider2', empty2); if (empty2) ok = false;
+  } else {
+    var empty = !val('nomeLider');
+    showErr('err-nomeLider', empty); if (empty) ok = false;
+  }
+
+  // Próximo passo
+  if (!val('proximoPasso')) {
+    showErr('err-proximoPasso', true); ok = false;
+  } else {
+    showErr('err-proximoPasso', false);
+  }
+
+  // Endereço e estado civil
+  ['bairro','cidade'].forEach(function(id){
+    var empty = !val(id);
+    showErr('err-'+id, empty); if (empty) ok = false;
+  });
+  if (!val('estadoCivil')) {
+    showErr('err-estadoCivil', true); ok = false;
+  } else {
+    showErr('err-estadoCivil', false);
+  }
+
+  return ok;
+}
+
+// ── Payload ────────────────────────────────────────────────────
+function buildPayload() {
+  var isCasais = (val('ministerio') === 'Somos Um (Casais)');
+  return {
+    formulario:       'membro',
+    nome_completo:    val('nomeCompleto'),
+    whatsapp:         val('whatsapp'),
+    email:            val('email'),
+    data_nascimento:  val('dataNascimento'),
+    sexo:             val('sexo'),
+    ministerio:       val('ministerio'),
+    nome_gc:          val('nomeGC'),
+    nome_lider:       isCasais ? '' : val('nomeLider'),
+    whats_lider:      isCasais ? '' : val('whatsLider'),
+    nome_lider1:      isCasais ? val('nomeLider1') : '',
+    whats_lider1:     isCasais ? val('whatsLider1') : '',
+    nome_lider2:      isCasais ? val('nomeLider2') : '',
+    whats_lider2:     isCasais ? val('whatsLider2') : '',
+    proximo_passo:    val('proximoPasso'),
+    bairro:           val('bairro'),
+    cidade:           val('cidade'),
+    estado_civil:     val('estadoCivil'),
+    obs:              val('obs')
+  };
+}
+
+// ── Sucesso / reset ────────────────────────────────────────────
+function mostrarSucesso() {
+  document.getElementById('membroForm').style.display = 'none';
+  document.getElementById('successScreen').style.display = 'block';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function novoMembro() {
+  document.getElementById('membroForm').reset();
+  document.getElementById('sec-lider-unico').style.display = 'block';
+  document.getElementById('sec-lideres-duplo').style.display = 'none';
+  updateProgress();
+  document.getElementById('membroForm').style.display = 'block';
+  document.getElementById('successScreen').style.display = 'none';
+  document.querySelectorAll('.error').forEach(function(el){ el.classList.remove('error'); });
+  document.querySelectorAll('.error-msg').forEach(function(el){ el.style.display='none'; });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function clearForm() { if(confirm('Limpar todos os dados preenchidos?')) novoMembro(); }
+
+// ── Listeners ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  var wEl = document.getElementById('whatsapp');
+  if (wEl) { wEl.addEventListener('input', function(){ formatarTel(this); }); wEl.setAttribute('maxlength','15'); }
+  document.querySelectorAll('.tel-lider').forEach(function(el){
+    el.addEventListener('input', function(){ formatarTel(this); });
+  });
+  var dnEl = document.getElementById('dataNascimento');
+  if (dnEl) { dnEl.addEventListener('input', function(){ formatarData(this); }); dnEl.setAttribute('maxlength','10'); }
+
+  document.getElementById('ministerio').addEventListener('change', onMinisterioChange);
+  document.getElementById('membroForm').addEventListener('input', updateProgress);
+
+  document.getElementById('membroForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    if (!validate()) {
+      var first = document.querySelector('.error');
+      if (first) first.scrollIntoView({behavior:'smooth',block:'center'});
+      return;
+    }
+    var btn = document.getElementById('submitBtn');
+    btn.disabled = true; btn.textContent = 'Enviando...';
+    mostrarSucesso();
+    fetch(APPS_SCRIPT_URL, {
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(buildPayload())
+    }).catch(function(err){ console.error(err); });
+    btn.disabled = false; btn.textContent = '✓ Enviar cadastro';
+  });
+
+  document.getElementById('btnClear').addEventListener('click', clearForm);
+  document.getElementById('btnNovoMembro').addEventListener('click', novoMembro);
+});
+
+</script>
+</body>
+</html>
