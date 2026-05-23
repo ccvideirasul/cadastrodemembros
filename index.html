@@ -528,6 +528,24 @@
           <option>5 — LIDERAR</option>
           <option value="nao">Prefiro não indicar um próximo passo agora</option>
         </select>
+        <div class="error-msg" id="err-proximoPasso">Selecione um próximo passo.</div>
+      </div>
+
+      <!-- Próximo passo do cônjuge — só aparece se casado e cônjuge quer participar -->
+      <div id="secPassoConjuge" style="display:none">
+        <div class="field">
+          <label>Qual é o próximo passo do seu cônjuge? <span class="req">*</span></label>
+          <select id="proximoPassoConjuge">
+            <option value="">Selecione...</option>
+            <option>1 — DECIDIR</option>
+            <option>2 — CONECTAR</option>
+            <option>3 — CONHECER</option>
+            <option>4 — SERVIR</option>
+            <option>5 — LIDERAR</option>
+            <option value="nao">Prefiro não indicar um próximo passo agora</option>
+          </select>
+          <div class="error-msg" id="err-proximoPassoConjuge">Selecione um próximo passo para o cônjuge.</div>
+        </div>
       </div>
     </div>
 
@@ -622,7 +640,7 @@
 
 <script>
 
-var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxR1wgog1FJ5U6JMNTm74mf6zmUnGgTIvaJSAjCMShOkmIuuNpbR1NTvEwwf78zY60Auw/exec';
+var APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwePY734GzOAvIC1OjHIuNumVrPlk0uyAxnu8HBWMV7sPIx2Z6keqltSyEUwmC_KcJanw/exec';
 
 var PASSOS = {
   '1 — DECIDIR':  'Conhecendo a igreja, mas ainda não aceitou a Jesus como Senhor e Salvador.',
@@ -684,9 +702,9 @@ function onMinisterioChange() {
 
 // ── Progresso ──────────────────────────────────────────────────
 function updateProgress() {
-  var s1 = val('nomeCompleto') && val('whatsapp');
+  var s1 = val('nomeCompleto') && val('whatsapp') && val('sexo') && val('dataNascimento');
   var s2 = val('ministerio') && val('nomeGC');
-  var s3 = val('bairro') && val('cidade') && radioVal('estadoCivil');
+  var s3 = val('bairro') && val('cidade') && val('estadoCivil') && val('proximoPasso');
   var done = (s1?1:0)+(s2?1:0)+(s3?1:0);
   document.getElementById('progressFill').style.width = (done/3*100)+'%';
   document.getElementById('progressLabel').textContent = done+' de 3 seções preenchidas';
@@ -759,6 +777,8 @@ function validate() {
 
     // Dados do cônjuge só obrigatórios se ele quer participar de GC
     if (val('conjugeGC') === 'sim') {
+      if (!val('proximoPassoConjuge')) { showErr('err-proximoPassoConjuge', true); ok = false; }
+      else showErr('err-proximoPassoConjuge', false);
       ['conjugeNome','conjugeWhats','conjugeNasc','conjugeSexo'].forEach(function(id){
         var empty = !val(id);
         showErr('err-'+id, empty);
@@ -806,7 +826,8 @@ function buildPayload() {
     conjuge_whats:    val('conjugeWhats'),
     conjuge_email:    val('conjugeEmail'),
     conjuge_nasc:     val('conjugeNasc'),
-    conjuge_sexo:     val('conjugeSexo')
+    conjuge_sexo:     val('conjugeSexo'),
+    conjuge_passo:    val('proximoPassoConjuge')
   };
 }
 
@@ -850,8 +871,14 @@ function onConjugeGCChange() {
   var min = document.getElementById('ministerio');
   var secDados = document.getElementById('secConjugeDados');
 
-  // Mostrar dados do cônjuge apenas se resposta for sim
+  // Mostrar dados e próximo passo do cônjuge apenas se resposta for sim
   if (secDados) secDados.style.display = resp === 'sim' ? 'block' : 'none';
+  var secPasso = document.getElementById('secPassoConjuge');
+  if (secPasso) secPasso.style.display = resp === 'sim' ? 'block' : 'none';
+  if (resp !== 'sim') {
+    var ppc = document.getElementById('proximoPassoConjuge');
+    if (ppc) ppc.value = '';
+  }
 
   // Limpar campos se mudou para não
   if (resp === 'nao') {
