@@ -442,7 +442,7 @@
       <div class="row-2">
         <div class="field">
           <label>Estado civil <span class="req">*</span></label>
-          <select id="estadoCivil">
+          <select id="estadoCivil" onchange="onEstadoCivilChange()">
             <option value="">Selecione...</option>
             <option>Solteiro(a)</option>
             <option>Casado(a)</option>
@@ -454,6 +454,54 @@
         <div class="field">
           <label>Observações <span class="hint">(opcional)</span></label>
           <textarea id="obs" placeholder="Algo que queira informar à liderança..." style="min-height:42px"></textarea>
+        </div>
+      </div>
+
+      <!-- Bloco cônjuge — visível apenas quando Casado(a) -->
+      <div id="secConjuge" style="display:none">
+        <div class="section-divider" style="margin-top:8px">Cônjuge</div>
+        <div class="field">
+          <label>O seu cônjuge também participa ou quer participar de um GC? <span class="req">*</span></label>
+          <select id="conjugeGC" onchange="onConjugeGCChange()">
+            <option value="">Selecione...</option>
+            <option value="sim">Sim</option>
+            <option value="nao">Não</option>
+          </select>
+          <div class="error-msg" id="err-conjugeGC">Selecione uma opção.</div>
+        </div>
+        <div id="secConjugeDados" style="display:none">
+          <div class="row-2">
+            <div class="field">
+              <label>Nome completo <span class="req">*</span></label>
+              <input type="text" id="conjugeNome" placeholder="Nome do cônjuge">
+              <div class="error-msg" id="err-conjugeNome">Informe o nome do cônjuge.</div>
+            </div>
+            <div class="field">
+              <label>WhatsApp <span class="req">*</span></label>
+              <input type="tel" id="conjugeWhats" placeholder="(85) 99999-9999" maxlength="15">
+              <div class="error-msg" id="err-conjugeWhats">Informe o WhatsApp do cônjuge.</div>
+            </div>
+          </div>
+          <div class="field">
+            <label>E-mail <span class="hint">(opcional)</span></label>
+            <input type="email" id="conjugeEmail" placeholder="email@exemplo.com">
+          </div>
+          <div class="row-2">
+            <div class="field">
+              <label>Data de nascimento <span class="req">*</span></label>
+              <input type="text" id="conjugeNasc" placeholder="DD/MM/AAAA" maxlength="10">
+              <div class="error-msg" id="err-conjugeNasc">Informe a data de nascimento.</div>
+            </div>
+            <div class="field">
+              <label>Sexo <span class="req">*</span></label>
+              <select id="conjugeSexo">
+                <option value="">Selecione...</option>
+                <option>Masculino</option>
+                <option>Feminino</option>
+              </select>
+              <div class="error-msg" id="err-conjugeSexo">Selecione o sexo.</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -704,6 +752,29 @@ function validate() {
     showErr('err-estadoCivil', false);
   }
 
+  if (val('estadoCivil') === 'Casado(a)') {
+    // conjugeGC sempre obrigatório se casado
+    if (!val('conjugeGC')) { showErr('err-conjugeGC', true); ok = false; }
+    else showErr('err-conjugeGC', false);
+
+    // Dados do cônjuge só obrigatórios se ele quer participar de GC
+    if (val('conjugeGC') === 'sim') {
+      ['conjugeNome','conjugeWhats','conjugeNasc','conjugeSexo'].forEach(function(id){
+        var empty = !val(id);
+        showErr('err-'+id, empty);
+        if (empty) ok = false;
+      });
+      var cw = document.getElementById('conjugeWhats');
+      if (cw && val('conjugeWhats') && !telValido(cw)) {
+        showErr('err-conjugeWhats', true, 'Número inválido — DDD + 9 dígitos.'); ok = false;
+      }
+      var cn = val('conjugeNasc');
+      if (cn && !dataValida(cn)) {
+        showErr('err-conjugeNasc', true, 'Data inválida. Use DD/MM/AAAA.'); ok = false;
+      }
+    }
+  }
+
   return ok;
 }
 
@@ -729,7 +800,13 @@ function buildPayload() {
     bairro:           val('bairro'),
     cidade:           val('cidade'),
     estado_civil:     val('estadoCivil'),
-    obs:              val('obs')
+    obs:              val('obs'),
+    conjuge_gc:       val('conjugeGC'),
+    conjuge_nome:     val('conjugeNome'),
+    conjuge_whats:    val('conjugeWhats'),
+    conjuge_email:    val('conjugeEmail'),
+    conjuge_nasc:     val('conjugeNasc'),
+    conjuge_sexo:     val('conjugeSexo')
   };
 }
 
@@ -753,12 +830,59 @@ function novoMembro() {
 function clearForm() { if(confirm('Limpar todos os dados preenchidos?')) novoMembro(); }
 
 // ── Listeners ──────────────────────────────────────────────────
+// ── Cônjuge ────────────────────────────────────────────────────
+function onEstadoCivilChange() {
+  var casado = val('estadoCivil') === 'Casado(a)';
+  document.getElementById('secConjuge').style.display = casado ? 'block' : 'none';
+  if (!casado) {
+    ['conjugeNome','conjugeWhats','conjugeEmail','conjugeNasc'].forEach(function(id){
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    var s = document.getElementById('conjugeGC'); if (s) s.value = '';
+    var sx = document.getElementById('conjugeSexo'); if (sx) sx.value = '';
+  }
+  updateProgress();
+}
+
+function onConjugeGCChange() {
+  var resp = val('conjugeGC');
+  var sexo = val('sexo');
+  var min = document.getElementById('ministerio');
+  var secDados = document.getElementById('secConjugeDados');
+
+  // Mostrar dados do cônjuge apenas se resposta for sim
+  if (secDados) secDados.style.display = resp === 'sim' ? 'block' : 'none';
+
+  // Limpar campos se mudou para não
+  if (resp === 'nao') {
+    ['conjugeNome','conjugeWhats','conjugeEmail','conjugeNasc'].forEach(function(id){
+      var el = document.getElementById(id); if (el) el.value = '';
+    });
+    var sx = document.getElementById('conjugeSexo'); if (sx) sx.value = '';
+  }
+
+  if (!min) return;
+  if (resp === 'sim') {
+    min.value = 'Somos Um (Casais)';
+  } else if (resp === 'nao') {
+    min.value = sexo === 'Masculino' ? 'Somos Um (Rede HC)' : 'Somos Um (Rede MC)';
+  }
+  min.dispatchEvent(new Event('change'));
+  updateProgress();
+}
+
 document.addEventListener('DOMContentLoaded', function(){
   var wEl = document.getElementById('whatsapp');
   if (wEl) { wEl.addEventListener('input', function(){ formatarTel(this); }); wEl.setAttribute('maxlength','15'); }
   document.querySelectorAll('.tel-lider').forEach(function(el){
     el.addEventListener('input', function(){ formatarTel(this); });
   });
+  // Máscaras cônjuge
+  var cw = document.getElementById('conjugeWhats');
+  if (cw) cw.addEventListener('input', function(){ formatarTel(this); });
+  var cn = document.getElementById('conjugeNasc');
+  if (cn) cn.addEventListener('input', function(){ formatarData(this); });
+
   var dnEl = document.getElementById('dataNascimento');
   if (dnEl) { dnEl.addEventListener('input', function(){ formatarData(this); }); dnEl.setAttribute('maxlength','10'); }
 
